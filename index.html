@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CSS Installation</title>
+</head>
+
+<body>
+    <div class="main" id="main">
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+        <video class="video" id="video" controls>
+            <source type="application/x-mpegURL">
+        </video>
+        <button class="burger" id="burger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="burger-main" id="burger-main">
+            <ul id="tvs">
+                <li>NHK</li>
+                <li>Eテレ</li>
+                <li>TBS</li>
+                <li>TV TOKYO</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        const burger = document.querySelector("#burger");
+        const main = document.querySelector("#burger-main");
+        const video = document.getElementById("video");
+        const tvs = document.querySelectorAll(".burger-main ul li");
+
+        const tvuris = [
+            { name: "", url: "" }
+        ]
+
+        if (burger) {
+            burger.addEventListener("click", () => {
+                burger.classList.toggle("isactive");
+                main.classList.toggle("isactive");
+            });
+        }
+
+        for (let i = 0; i < tvs.length; i++) {
+            tvs[i].addEventListener("click", () => {
+                console.log(`Clicked on menu item ${tvs[i].innerText}`);
+                alert(`Clicked on ${tvs[i].innerText}`);
+                video.style.display = "block";
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource('https://stream01.willfonk.com/live_playlist.m3u8?cid=BS296&r=FHD&ccode=JP&m=d0:20:20:04:35:cc&t=0d6938cb3dcf4b79848bc1753a59daf1');
+                    hls.attachMedia(video);
+                };
+            });
+        }
+    </script>
+</body>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-size: 20px;
+        border: none;
+        color: #fff;
+    }
+
+    body {
+        background-color: rgb(45, 45, 45);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+        justify-content: left;
+    }
+
+    .video {
+        position: absolute;
+        display: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    .burger-main {
+        --width: 200px;
+        background-color: rgb(60, 60, 60);
+        transition: all .5s ease;
+        width: var(--width);
+        position: absolute;
+        top: 0;
+        left: -200px;
+        height: 100vh;
+        padding: 1rem;
+    }
+
+    .burger-main ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .burger-main ul li {
+        margin-bottom: 0.4rem;
+        padding: 1rem;
+        cursor: pointer;
+        background-color: rgb(80, 80, 80);
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .burger-main.isactive {
+        left: 0;
+    }
+
+    .burger {
+        --burger-rotate: 0;
+        rotate: var(--burger-rotate);
+        --rotate: 0;
+        --translate: .55rem;
+        background-color: rgb(60, 60, 60);
+        display: grid;
+        transition: all .5s;
+        place-items: center;
+        width: 54px;
+        cursor: pointer;
+        border-radius: 5px;
+        aspect-ratio: 1;
+        position: relative;
+        z-index: 1000;
+
+        &:hover {
+            background-color: rgb(70, 70, 70);
+        }
+
+        &.isactive {
+            position: absolute;
+            translate: 200px;
+            --burger-rotate: 180deg;
+            --rotate: 135deg;
+            --translate: 0;
+        }
+
+        &.isactive :nth-child(1) {
+            opacity: 0;
+        }
+
+        span {
+            display: block;
+            grid-area: 1 / 1 / -1 / -1;
+            transition: all .5s;
+            width: 70%;
+            height: 3px;
+            border-radius: 4px;
+            background-color: rgb(240, 240, 240);
+
+            &:nth-child(2) {
+                rotate: var(--rotate);
+                translate: 0 calc(var(--translate) * -1);
+            }
+
+            &:nth-child(3) {
+                rotate: calc(var(--rotate) * -1);
+                translate: 0 var(--translate);
+            }
+        }
+    }
+</style>
+
+</html>
