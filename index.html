@@ -7,9 +7,8 @@
 
 <body>
     <div class="main" id="main">
-        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-        <video class="video" id="video" controls>
-            <source type="application/x-mpegURL">
+        <video class="video video-js vjs-default-skin" id="video" controls preload="none">
+            <source src="https://stream01.willfonk.com/live_playlist.m3u8?cid=BS255&r=FHD&ccode=JP&m=d0:20:20:04:35:cc&t=0d6938cb3dcf4b79848bc1753a59daf1" type='application/x-mpegURL'>
         </video>
         <button class="burger" id="burger">
             <span></span>
@@ -26,6 +25,10 @@
             </ul>
         </div>
     </div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.2/alt/video-js-cdn.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.2/video.js"></script>
+    <script src="./videojs-contrib-hls.js"></script>
+
     <script>
         const burger = document.querySelector("#burger");
         const main = document.querySelector("#burger-main");
@@ -48,11 +51,11 @@
                 console.log(`Clicked on menu item ${tvs[i].innerText}`);
                 alert(`Clicked on ${tvs[i].innerText}`);
                 video.style.display = "block";
-                if (Hls.isSupported()) {
-                    var hls = new Hls();
-                    hls.loadSource('https://stream01.willfonk.com/live_playlist.m3u8?cid=BS296&r=FHD&ccode=JP&m=d0:20:20:04:35:cc&t=0d6938cb3dcf4b79848bc1753a59daf1');
-                    hls.attachMedia(video);
-                };
+                video.style.width = "100%";
+                video.style.height = "100%"
+                video.setAttribute("src","https://stream01.willfonk.com/live_playlist.m3u8?cid=BS255&r=FHD&ccode=JP&m=d0:20:20:04:35:cc&t=0d6938cb3dcf4b79848bc1753a59daf1");
+                const player = videojs("video");
+                player.play();
             });
         }
     </script>
