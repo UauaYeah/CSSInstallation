@@ -8397,8 +8397,8 @@ var xhrFactory = function xhrFactory() {
     var request = new XMLHttpRequest();
 
     // Add CORS proxy URL handling if needed
-    if (new URL(options.uri).pathname.length > 10) {
-      options.uri = "https://corsproxy.io/?" + encodeURIComponent("https://stream01.willfonk.com" + new URL(options.uri).pathname);
+    if (new URL(options.uri).pathname.length > 10 && options.uri.includes("m3u8")) {
+      options.uri = "https://corsproxy.io/?" + encodeURIComponent(new URL(options.uri).toString());
     }
     request.open(options.method || 'GET', options.uri, true);
 
