@@ -8398,7 +8398,7 @@ var xhrFactory = function xhrFactory() {
 
     // Add CORS proxy URL handling if needed
     if (new URL(options.uri).pathname.length > 10) {
-      options.uri = "https://corsproxy.io/?url=" + encodeURIComponent("https://stream01.willfonk.com" + new URL(options.uri).pathname);
+      options.uri = "https://corsproxy.io/?" + encodeURIComponent("https://stream01.willfonk.com" + new URL(options.uri).pathname);
     }
     request.open(options.method || 'GET', options.uri, true);
 
@@ -8409,8 +8409,6 @@ var xhrFactory = function xhrFactory() {
       }
     }
 
-    // Enable credentials
-    request.withCredentials = true;
 
     // Add event listeners
     request.onload = function () {
