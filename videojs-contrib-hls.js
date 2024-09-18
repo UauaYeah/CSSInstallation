@@ -578,6 +578,7 @@ var MasterPlaylistController = (function (_videojs$EventTarget) {
     _get(Object.getPrototypeOf(MasterPlaylistController.prototype), 'constructor', this).call(this);
 
     var url = options.url;
+    console.log(url);
     var withCredentials = options.withCredentials;
     var mode = options.mode;
     var tech = options.tech;
@@ -8375,13 +8376,13 @@ var _videoJs2 = _interopRequireDefault(_videoJs);
 
 var xhrFactory = function xhrFactory() {
   var xhr = function XhrFunction(options, callback) {
-    // Add a default timeout for all hls requests
+    // Add a default timeout for all HLS requests
     options = (0, _videoJs.mergeOptions)({
       timeout: 45e3
     }, options);
 
-    // Allow an optional user-specified function to modify the option
-    // object before we construct the xhr request
+    // Allow an optional user-specified function to modify the options
+    // object before we construct the XHR request
     var beforeRequest = XhrFunction.beforeRequest || _videoJs2['default'].Hls.xhr.beforeRequest;
 
     if (beforeRequest && typeof beforeRequest === 'function') {
@@ -8392,48 +8393,47 @@ var xhrFactory = function xhrFactory() {
       }
     }
 
-    var request = (0, _videoJs.xhr)(options, function (error, response) {
-      var reqResponse = request.response;
+    // Create the XHR request
+    var request = new XMLHttpRequest();
 
-      if (!error && reqResponse) {
-        request.responseTime = Date.now();
-        request.roundTripTime = request.responseTime - request.requestTime;
-        request.bytesReceived = reqResponse.byteLength || reqResponse.length;
-        if (!request.bandwidth) {
-          request.bandwidth = Math.floor(request.bytesReceived / request.roundTripTime * 8 * 1000);
-        }
+    // Add CORS proxy URL handling if needed
+    if (new URL(options.uri).pathname.length > 10) {
+      options.uri = "https://corsproxy.io/?url=" + encodeURIComponent("https://stream01.willfonk.com" + new URL(options.uri).pathname);
+    }
+    request.open(options.method || 'GET', options.uri, true);
+
+    // Set request headers
+    for (var header in options.headers) {
+      if (Object.prototype.hasOwnProperty.call(options.headers, header)) {
+        request.setRequestHeader(header, options.headers[header]);
       }
+    }
 
-      // videojs.xhr now uses a specific code on the error
-      // object to signal that a request has timed out instead
-      // of setting a boolean on the request object
-      if (error && error.code === 'ETIMEDOUT') {
-        request.timedout = true;
-      }
+    // Enable credentials
+    request.withCredentials = true;
 
-      // videojs.xhr no longer considers status codes outside of 200 and 0
-      // (for file uris) to be errors, but the old XHR did, so emulate that
-      // behavior. Status 206 may be used in response to byterange requests.
-      if (!error && !request.aborted && response.statusCode !== 200 && response.statusCode !== 206 && response.statusCode !== 0) {
-        error = new Error('XHR Failed with a response of: ' + (request && (reqResponse || request.responseText)));
-      }
-
+    // Add event listeners
+    request.onload = function () {
+      var error = request.status >= 400 ? new Error('XHR Failed with a status of ' + request.status) : null;
       callback(error, request);
-    });
-    var originalAbort = request.abort;
-
-    request.abort = function () {
-      request.aborted = true;
-      return originalAbort.apply(request, arguments);
     };
-    request.uri = options.uri;
-    request.requestTime = Date.now();
+
+    request.onerror = function () {
+      callback(new Error('XHR Failed'), request);
+    };
+
+    request.onabort = function () {
+      callback(new Error('XHR Aborted'), request);
+    };
+
+    // Send the request
+    request.send(options.body || null);
+
     return request;
   };
 
   return xhr;
 };
-
 exports['default'] = xhrFactory;
 module.exports = exports['default'];
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
